@@ -1,0 +1,83 @@
+from collections import Counter
+class Detail:
+    def __init__(self, id, name, supplier_id):
+        self.id = id
+        self.name = name
+        self.supplier_id = supplier_id
+
+class Supplier:
+    def __init__(self, id, name, department):
+        self.id = id
+        self.name = name
+        self.department = department
+        
+
+class SupplierDetailLink:
+    def __init__(self, supplier_id, detail_id):
+        self.supplier_id = supplier_id
+        self.detail_id = detail_id
+det_names = ["Гвоздь","Пробка", "Шуруп", "Замок", "Призма"]
+details = [
+    Detail(1, det_names[0], 1),
+    Detail(2, det_names[1], 2),
+    Detail(3, det_names[2], 2),
+    Detail(4, det_names[3], 3),
+    Detail(5, det_names[4], 1)
+]
+
+suppliers = [
+    Supplier(1, "Иванов", "ПИЛАтос"),
+    Supplier(2, "Петров", "Замок или замок?"),
+    Supplier(3, "Сидоренко", "ГВОЗДИка"),
+    Supplier(4, "Смирный", "ГВОЗДИка"),
+    Supplier(5, "Козуб", "ПИЛАтос"),
+]
+
+supplier_detail_links = [
+    SupplierDetailLink(1, 1),
+    SupplierDetailLink(2, 2),
+    SupplierDetailLink(2, 3),
+    SupplierDetailLink(4, 2),
+    SupplierDetailLink(5, 1)
+]
+
+def main():
+    """Основная функция"""
+
+    # Соединение данных один-ко-многим
+    one_to_many = [(supplier.name, detail.name, supplier.department)
+                   for detail in details
+                   for supplier in suppliers
+                   if detail.supplier_id == supplier.id]
+
+    # Соединение данных многие-ко-многим
+    many_to_many_temp = [(supplier.name, sdl.supplier_id, sdl.detail_id)
+                         for supplier in suppliers
+                         for sdl in supplier_detail_links
+                         if supplier.id == sdl.supplier_id]
+
+    many_to_many = [(supplier.id, detail.name)
+                for supplier in suppliers
+                for detail in details
+                if detail.supplier_id == supplier.id]
+
+
+    # Вывод результатов
+    print('Задание №1: Список связанных поставщиков и отделов, отсортированный по поставщикам')
+    result_query_1 = sorted(one_to_many, key=lambda x: x[0])
+    for item in result_query_1:
+        print(f"Поставщик: {item[0]}, Деталь: {item[1]}, Отдел: {item[2]}")
+
+    print('\nЗадание №2: Список отделов с количеством поставщиков в каждом отделе, отсортированный по количеству поставщиков')
+    department_counts = Counter(supplier.department for supplier in suppliers)
+    result_query_2 = sorted(department_counts.items(), key=lambda x: x[1], reverse=True)
+    for item in result_query_2:
+        print(f"Отдел: {item[0]}, Количество поставщиков: {item[1]}")
+
+    print('\nЗадание №3: Список поставщиков, у которых фамилия заканчивается на "ов," и названия их отделов')
+    result_query_3 = [(supplier.name, supplier.department) for supplier in suppliers if supplier.name.endswith("ов")]
+    for item in result_query_3:
+        print(f"Поставщик: {item[0]}, Отдел: {item[1]}")
+
+if __name__ == "__main__":
+    main()
